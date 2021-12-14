@@ -152,7 +152,5 @@ contract TokenFarm is Ownable {
         return false;
     }
 
-    function addAllowedTokens() public {}
-
     function getEthValue() public {}
 }

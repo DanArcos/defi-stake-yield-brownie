@@ -48,14 +48,19 @@ def test_stake_tokens(amount_staked):
     token_farm.stakeTokens(amount_staked, dapp_token.address, {"from": account})
 
     # Assert
+
+    # check staking balance
     assert (
         token_farm.stakingBalance(dapp_token.address, account.address) == amount_staked
     )
 
+    # check unique tokens stakes
     assert token_farm.uniqueTokensStaked(account.address) == 1
 
+    # check stakers
     assert token_farm.stakers(0) == account
 
+    # return values for the next token.
     return token_farm, dapp_token
 
 
@@ -75,3 +80,22 @@ def test_issue_tokens(amount_staked):
         dapp_token.balanceOf(account.address)
         == starting_balance + INITIAL_PRICE_FEED_VALUE
     )
+
+
+def test_unstake_tokens(amount_staked):
+    if network.show_active() not in LOCAL_BLOCKCHAIN_ENVIRONMENTS:
+        pytest.skip("Only for local testing.")
+
+    account = get_account()
+
+    token_farm, dapp_token = test_stake_tokens(amount_staked)
+
+    assert token_farm.stakingBalance(dapp_token.address, account) > 0
+
+    # Unstake Token
+    token_farm.unstakeTokens(dapp_token.address)
+
+    # Assert that staking balance is now 0
+    assert token_farm.stakingBalance(dapp_token.address, account) == 0
+
+    assert token_farm.uniqueTokensStaked(account.address) == 0
